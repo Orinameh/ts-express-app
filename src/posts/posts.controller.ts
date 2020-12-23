@@ -37,8 +37,9 @@ class PostsController {
     private createAPost = async (request: RequestWithUser, response: express.Response): Promise<express.Response> => {
         try {
             const postData: Post = request.body;
-            const createdPost = new this.post({...postData, authorId: request.user._id});
+            const createdPost = new this.post({...postData, author: request.user._id});
             const savedPost = await createdPost.save();
+            await savedPost.populate({ path: 'author', select: 'name email' }).execPopulate();
             if (!savedPost) {
                 return response.status(400).json({ message: 'Bad request' });
             }
@@ -48,6 +49,7 @@ class PostsController {
             });
 
         } catch (error) {
+            // console.log(error)
             return response.status(500).json({ message: 'something bad happened', error });
         }
 
@@ -55,14 +57,15 @@ class PostsController {
 
     private getAllPosts = async (request: express.Request, response: express.Response) => {
         try {
-            const posts: Post[] = await this.post.find().exec();
+            const posts: Post[] = await this.post.find().populate('author', 'name email').exec();
 
             if (!posts) {
-                response.status(400).json({ message: '' })
+                response.status(400).json({ message: 'Bad request' })
             }
             response.status(200).json({ message: 'Get all posts', posts });
 
         } catch (error) {
+            console.log(error)
             response.status(500).json({ message: 'something bad happened' });
 
         }
@@ -87,7 +90,6 @@ class PostsController {
     private modifyPost = (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const id: string = request.params.id;
         const postData: Post = request.body;
-        console.log(postData)
         this.post.findOneAndUpdate({_id: id}, postData)
           .then((post) => {
             if(post) {

@@ -9,6 +9,7 @@ function validationMiddleware<T>(type: any, skipMissingProperties = false): Requ
       .then((errors: ValidationError[]) => {
         if (errors.length > 0) {
           const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
+          console.log(errors)
           next(new HttpException(400, message));
         } else {
           next();

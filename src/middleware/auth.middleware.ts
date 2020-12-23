@@ -10,8 +10,9 @@ async function authMiddleware(req: RequestWithUser, res: Response, next: NextFun
     if (cookies && cookies.Authorization) {
         const secret = process.env.JWT_SECRET;
         try {
-            // jwt.verify(cookies.Authorization, secret) as DataStoredInToken
-            const verificationResponse = <DataStoredInToken>jwt.verify(cookies.Authorization, secret);
+           
+            // <DataStoredInToken>jwt.verify(cookies.Authorization, secret)
+            const verificationResponse =  jwt.verify(cookies.Authorization, secret) as DataStoredInToken;
             const id = verificationResponse._id;
             const user = await userModel.findOne({ _id: id }).exec();
             if (user) {

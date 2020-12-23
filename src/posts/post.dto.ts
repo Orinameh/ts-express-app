@@ -1,6 +1,7 @@
-import { IsString } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
  
 class CreatePostDto {
+  @IsOptional()
   @IsString()
   public author: string;
  
